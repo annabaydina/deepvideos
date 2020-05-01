@@ -5,5 +5,5 @@ matplotlib
 tensorflow
 tensorboard
 terminaltables
-pillow
+pillow==6.1.0
 tqdm

@@ -15,7 +15,7 @@ from matplotlib.patches import Rectangle
 class YoloV3(object):
     model: torch.nn.Module
 
-    def __init__(self, is_tiny=False, img_size=800):
+    def __init__(self, is_tiny=False, img_size=1024):
         if is_tiny:
             raise NotImplementedError("Tiny Yolov3 is not connected")
         model_def = '../zoo/pytorch_yolo_v3/config/yolov3.cfg'
@@ -47,7 +47,7 @@ class YoloV3(object):
         with torch.no_grad():
             outputs = self.model(img)
             print(outputs.shape)
-            outputs = non_max_suppression(outputs, conf_thres=0.1, nms_thres=0.5)
+            outputs = non_max_suppression(outputs, conf_thres=0.001, nms_thres=0.5)
             print(len(outputs), outputs[0].shape)
 
         data = plt.imread(image_file)
@@ -68,7 +68,7 @@ class YoloV3(object):
 
             print(pred_scores.shape, pred_labels.shape)
             for i in range(len(pred_scores)):
-                if pred_scores[i] < 0.6:
+                if pred_scores[i] < 0.8:
                     break
                 x1, y1, x2, y2 = pred_boxes[i] * self.zoom
                 x1 -= self.pad[0]
