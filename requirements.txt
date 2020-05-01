@@ -6,4 +6,5 @@ tensorflow
 tensorboard
 terminaltables
 pillow==6.1.0
+opencv-python
 tqdm
