@@ -32,6 +32,8 @@ class PDestreDataset(Dataset):
         self.bootstrap_factor = 10
         self.cropping = True
         self.crop_size = 832
+        self.random_seed = 16
+        random.seed(self.random_seed)
 
     def get_annotation_df(self, annotation_name):
         df = pd.read_csv(os.path.join(self.annotation_path, annotation_name), header=None).iloc[:, :7]
@@ -143,8 +145,8 @@ class PDestreDataset(Dataset):
         return len(self.annotation_files) * self.bootstrap_factor
 
 
-def visualize_dataset(dataset: Dataset, idx: int):
-    _, image_tensor, targets = dataset[idx]
+def visualize_dataset(image_tensor, targets):
+    # _, image_tensor, targets = dataset[idx]
 
     image = transforms.ToPILImage()(image_tensor)
 
@@ -208,6 +210,19 @@ if __name__ == '__main__':
     # d = ListDataset(r'f:\my\Prog\CV\Datasets\coco\trainvalno5k.txt')
     # print(d[0])
     p = PDestreDataset()
-    for i in range(len(p)):
-        visualize_dataset(p, i)
+    # _, img, targets = p[1]
+    # visualize_dataset(img, targets)
+    dataloader = torch.utils.data.DataLoader(
+        p,
+        batch_size=5,
+        shuffle=True,
+        num_workers=8,
+        pin_memory=True,
+        collate_fn=p.collate_fn,
+    )
+    for (_, imgs, targets) in dataloader:
+        print(imgs.shape, targets.shape)
+        for i, image_tensor in enumerate(imgs):
+            visualize_dataset(image_tensor, targets[targets[:, 0] == i])
+        break
     # print(p[0])
