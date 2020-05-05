@@ -16,7 +16,7 @@ from zoo.pytorch_yolo_v3.utils.utils import non_max_suppression, load_classes
 class YoloV3Pdestre(YoloV3):
     def __init__(self, is_tiny=False, img_size=1024):
 
-        model_def = 'yolo_pdestre_config/yolov3_pdestre.cfg'
+        model_def = 'f:/my/Prog/CV/deepvideos/yolo_model/yolo_pdestre_config/yolov3_pdestre.cfg'
 
         weights_path = '../zoo/pytorch_yolo_v3/weights/darknet53.conv.74'
         class_names = ['male', 'female', 'unknown']
@@ -27,7 +27,7 @@ class YoloV3Pdestre(YoloV3):
         self.model = Darknet(model_def).to(device)
         self.model.load_darknet_weights(weights_path)
         self.img_size = img_size
-        self.class_names = load_classes(class_names)
+        self.class_names = class_names
 
         hsv_tuples = [(x / len(self.class_names), 1., 1.)
                       for x in range(len(self.class_names))]
