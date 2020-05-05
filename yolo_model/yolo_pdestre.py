@@ -14,7 +14,7 @@ from zoo.pytorch_yolo_v3.utils.utils import non_max_suppression, load_classes
 
 
 class YoloV3Pdestre(YoloV3):
-    def __init__(self, is_tiny=False, img_size=1024):
+    def __init__(self, is_tiny=False, img_size=416):
 
         model_def = 'f:/my/Prog/CV/deepvideos/yolo_model/yolo_pdestre_config/yolov3_pdestre.cfg'
 

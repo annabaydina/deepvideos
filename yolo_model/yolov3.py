@@ -22,9 +22,12 @@ class YoloV3(object):
     def __init__(self, is_tiny=False, img_size=1024):
         if is_tiny:
             raise NotImplementedError("Tiny Yolov3 is not connected")
+
         model_def = '../zoo/pytorch_yolo_v3/config/yolov3.cfg'
-        weights_path = '../zoo/pytorch_yolo_v3/weights/yolov3.weights'
+        # weights_path = '../zoo/pytorch_yolo_v3/weights/yolov3.weights'
+        weights_path = '../zoo/pytorch_yolo_v3/weights/darknet53.conv.74'
         coco_names = '../zoo/pytorch_yolo_v3/data/coco.names'
+
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.model = Darknet(model_def).to(device)
         self.model.load_darknet_weights(weights_path)
@@ -129,7 +132,7 @@ class YoloV3(object):
             pred_scores = output[:, 4]
             pred_labels = output[:, -1]
 
-            font = ImageFont.truetype(font='SFNSDisplayCondensed-Heavy.otf', size=np.floor(3e-2 * image.size[1] + 0.5).astype('int32'))
+            font = ImageFont.truetype(font='UniversC.otf', size=np.floor(3e-2 * image.size[1] + 0.5).astype('int32'))
             thickness = (image.size[0] + image.size[1]) // 300
 
             for i in range(len(pred_scores)):
