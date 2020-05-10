@@ -1,5 +1,5 @@
 import colorsys
-
+import os
 from yolo_model.yolov3 import YoloV3
 import numpy as np
 import torch
@@ -14,18 +14,23 @@ from zoo.pytorch_yolo_v3.utils.utils import non_max_suppression, load_classes
 
 
 class YoloV3Pdestre(YoloV3):
-    def __init__(self, is_tiny=False, img_size=416):
+    def __init__(self, is_tiny=False, img_size=416, weights_path=None):
 
         model_def = 'f:/my/Prog/CV/deepvideos/yolo_model/yolo_pdestre_config/yolov3_pdestre.cfg'
 
-        weights_path = '../zoo/pytorch_yolo_v3/weights/darknet53.conv.74'
-        class_names = ['male', 'female', 'unknown']
+        if weights_path is None:
+            weights_path = '../zoo/pytorch_yolo_v3/weights/darknet53.conv.74'
 
+        class_names = ['male', 'female', 'unknown']
 
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
         self.model = Darknet(model_def).to(device)
-        self.model.load_darknet_weights(weights_path)
+        if os.path.splitext(weights_path)[1] == '.pth':
+            print("Using pytorch load")
+            self.model.load_state_dict(torch.load(weights_path))
+        else:
+            self.model.load_darknet_weights(weights_path)
         self.img_size = img_size
         self.class_names = class_names
 

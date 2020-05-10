@@ -136,7 +136,7 @@ class YoloV3(object):
             thickness = (image.size[0] + image.size[1]) // 300
 
             for i in range(len(pred_scores)):
-                if pred_scores[i] < 0.8:
+                if pred_scores[i] < 0.5:
                     break
                 x1, y1, x2, y2 = pred_boxes[i] * self.zoom
                 x1 -= self.pad[0]

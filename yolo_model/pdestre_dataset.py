@@ -12,6 +12,7 @@ import torchvision.transforms as transforms
 from PIL import Image, ImageFont, ImageDraw
 from tqdm import tqdm
 
+from yolo_model.yolo_pdestre import YoloV3Pdestre
 from zoo.pytorch_yolo_v3.utils.utils import non_max_suppression, xywh2xyxy, get_batch_statistics, ap_per_class
 from zoo.pytorch_yolo_v3.utils.datasets import pad_to_square, resize, ListDataset
 
@@ -67,6 +68,7 @@ class PDestreDataset(Dataset):
 
         # Choose random frame
         frame_idx = random.randint(1, annotation.frame_idx.max())
+
         annotation = annotation[annotation['frame_idx'] == frame_idx]
 
         if self.image_format == 'mp4':
@@ -88,6 +90,7 @@ class PDestreDataset(Dataset):
             raise ValueError(f'Image {image_file} size {img.size} is less than crop size: {self.crop_size}')
         xc = random.randint(0, img.size[0] - 1 - self.crop_size)
         yc = random.randint(0, img.size[1] - 1 - self.crop_size)
+
         crop = (xc, yc, xc + self.crop_size, yc + self.crop_size)
         img = img.crop(crop)
         img = transforms.ToTensor()(img.convert('RGB'))
@@ -101,6 +104,7 @@ class PDestreDataset(Dataset):
         h_factor, w_factor = (h, w) if self.normalized_labels else (1, 1)
         # Pad to square resolution
         img, pad = pad_to_square(img, 0)
+        pad = [float(x) for x in pad]
         _, padded_h, padded_w = img.shape
 
         # ---------
@@ -114,7 +118,7 @@ class PDestreDataset(Dataset):
         boxes_numpy = annotation[['sex', 'left', 'top', 'width', 'height']].values
 
         if self.annotation_path is not None:
-            boxes = torch.from_numpy(boxes_numpy.reshape(-1, 5))
+            boxes = torch.from_numpy(boxes_numpy.astype(np.float32).reshape(-1, 5))
 
             # Extract coordinates for unpadded + unscaled image
             x1 = w_factor * (boxes[:, 1] - xc)
@@ -234,11 +238,12 @@ def visualize_dataset(image_tensor, targets):
     return image
 
 
-def evaluate_pdestre(model, path, iou_thres, conf_thres, nms_thres, img_size, batch_size):
+def evaluate_pdestre(yoloPdestre: YoloV3Pdestre, path, iou_thres, conf_thres, nms_thres, img_size, batch_size):
+    model = yoloPdestre.model
     model.eval()
 
     # Get dataloader
-    validation_video_path = r'f:\my\Prog\CV\Datasets\pdestre\videos_eval'
+    validation_video_path = r'f:\my\Prog\CV\Datasets\pdestre\images_eval'
     validation_annotation_path = r'f:\my\Prog\CV\Datasets\pdestre\annotation_eval'
     dataset = PDestreDataset(validation_video_path, validation_annotation_path, img_size=img_size, augment=False,
                              multiscale=False)
